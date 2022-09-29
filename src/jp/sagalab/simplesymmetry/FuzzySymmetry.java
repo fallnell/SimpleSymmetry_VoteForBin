@@ -105,8 +105,6 @@ public class FuzzySymmetry {
         double[][] VotesOfPair = new double[NUM_OF_DIVISION_ANGLES][NUM_OF_DIVISION_PIXELS];
         /* 角度の刻み幅 */
         double intervalAngle = (Math.PI * 2) / (double) NUM_OF_DIVISION_ANGLES;
-        /* 距離の最大値 */
-        double R = 2 * Math.sqrt(Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_X, 2) + Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_Y, 2));
 
         double gradeTheta, gradeRho;
 
@@ -115,8 +113,8 @@ public class FuzzySymmetry {
             //角度側のグレードとしてθとθ＋πのグレードを導出し高い方をグレードとして採用
             //修論中の(2.3)式の操作を表している
             //ファジィ角度の導出の順序が論文における式と微妙に違うため注意
-            gradeTheta = Math.max(_pair.calculateGrade(i * intervalAngle, true),
-                    _pair.calculateGrade(i * intervalAngle, false));
+            gradeTheta = Math.max(_pair.calculateGrade(getBeginTheta(i), getEndTheta(i),true),
+                    _pair.calculateGrade(getBeginTheta(i), getEndTheta(i), false));
 
             /* θに対応するρの値を算出 */
             double D = _pair.calculateCenterPoint().getX() * Math.cos(i * intervalAngle)
@@ -130,7 +128,7 @@ public class FuzzySymmetry {
                         && v_s <= D + _pair.calculateCenterPoint().getF())) {
 
                     //距離側のグレード導出
-                    gradeRho = _pair.calculateGradeRho(v_s, i * intervalAngle);
+                    gradeRho = _pair.calculateGradeRho(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), i * intervalAngle);
 
                     //θとρのグレードを比較しそのAND(Minimum)を取り、ハフ投票
                     addGradeToPairList(i, j, Math.min(gradeTheta, gradeRho));
@@ -148,6 +146,26 @@ public class FuzzySymmetry {
             Logger.getLogger(FuzzySymmetry.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+
+    public static double getBeginTheta(int _num){
+        double span = 2 * Math.PI / NUM_OF_DIVISION_ANGLES;
+        return _num * span - span / 2;
+    }
+
+    public static double getEndTheta(int _num){
+        double span = 2 * Math.PI / NUM_OF_DIVISION_ANGLES;
+        return _num * span + span / 2;
+    }
+
+    public static double getBeginRho(int _num){
+        double span = R / NUM_OF_DIVISION_PIXELS;
+        return _num * span - span / 2;
+    }
+
+    public static double getEndRho(int _num){
+        double span = R / NUM_OF_DIVISION_PIXELS;
+        return _num * span + span / 2;
     }
 
     /**
@@ -219,6 +237,8 @@ public class FuzzySymmetry {
 
     }
 
+
+
     /**
      * ハフ空間への投票候補となるペアリストを初期化する
      */
@@ -247,10 +267,16 @@ public class FuzzySymmetry {
     public static final double PASSING_AVERAGE = 0;
 
     /**
+     * 距離の最大値
+     */
+
+    public static final double R = 2 * Math.sqrt(Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_X, 2) + Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_Y, 2));
+
+    /**
      * ハフ平面におけるθとρの分割数の分割倍率
      */
-    public static final int MAGNIFICATION_OF_NUM_OF_DIVISION_PIXELS = 1;
-    public static final int MAGNIFICATION_OF_NUM_OF_DIVISION_ANGLES = 1;
+    public static final int MAGNIFICATION_OF_NUM_OF_DIVISION_PIXELS = 10;
+    public static final int MAGNIFICATION_OF_NUM_OF_DIVISION_ANGLES = 10;
 
     /**
      * ハフ平面におけるρの分割数

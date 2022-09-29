@@ -28,11 +28,12 @@ public class Pair {
     /**
      * θ軸上の地点_uにおけるグレードを算出
      *
-     * @param _u θ軸上の点
+     * @param _left θ軸上のビンの始点
+     * @param _right θ軸上のビンの終点
      * @param _bool trueであれば0~πまで，falseであればπ~2πまで
      * @return グレード
      */
-    public double calculateGrade(double _u, boolean _bool) {
+    public double calculateGrade(double _left, double _right, boolean _bool) {
 
         double leftB;
         double rightB;
@@ -47,8 +48,10 @@ public class Pair {
 
         double gradeFloor = 1 - (this.calculateDistance()) / (this.m_p1.getF() + this.m_p2.getF());
 
-        double gradeMinus2PILeft = calculateFuzzyTriangleLeftau(_u - 2 * Math.PI) + leftB;
-        double gradeMinus2PIRight = calculateFuzzyTriangleRightau(_u - 2 * Math.PI) + rightB;
+        double gradeMinus2PILeft = Math.max(calculateFuzzyTriangleLeftau(_left - 2 * Math.PI) + leftB,
+                calculateFuzzyTriangleLeftau(_right - 2 * Math.PI) + leftB);
+        double gradeMinus2PIRight = Math.max(calculateFuzzyTriangleRightau(_left - 2 * Math.PI) + rightB,
+                calculateFuzzyTriangleRightau(_right - 2 * Math.PI) + rightB);
 
         double gradeMinus2PI;
 
@@ -58,8 +61,14 @@ public class Pair {
             gradeMinus2PI = gradeMinus2PIRight;
         }
 
-        double gradeLeft = calculateFuzzyTriangleLeftau(_u) + leftB;
-        double gradeRight = calculateFuzzyTriangleRightau(_u) + rightB;
+        if(gradeMinus2PI > 1.0){
+            gradeMinus2PI = 1.0;
+        }else if(gradeMinus2PI < 0) {
+            gradeMinus2PI = 0;
+        }
+
+        double gradeLeft = Math.max(calculateFuzzyTriangleLeftau(_left) + leftB,calculateFuzzyTriangleLeftau(_right) + leftB);
+        double gradeRight = Math.max(calculateFuzzyTriangleRightau(_left) + rightB,calculateFuzzyTriangleRightau(_right) + rightB);
 
         double gradeCenter;
 
@@ -69,8 +78,16 @@ public class Pair {
             gradeCenter = gradeRight;
         }
 
-        double gradePlus2PILeft = calculateFuzzyTriangleLeftau(_u + 2 * Math.PI) + leftB;
-        double gradePlus2PIRight = calculateFuzzyTriangleRightau(_u + 2 * Math.PI) + rightB;
+        if(gradeCenter > 1.0){
+            gradeCenter = 1.0;
+        }else if(gradeCenter < 0) {
+            gradeCenter = 0;
+        }
+
+        double gradePlus2PILeft = Math.max(calculateFuzzyTriangleLeftau(_left + 2 * Math.PI) + leftB,
+                calculateFuzzyTriangleLeftau(_right + 2 * Math.PI) + leftB);
+        double gradePlus2PIRight = Math.max(calculateFuzzyTriangleRightau(_left + 2 * Math.PI) + rightB,
+                calculateFuzzyTriangleRightau(_right + 2 * Math.PI) + rightB);
 
         double gradePlus2PI;
 
@@ -78,6 +95,12 @@ public class Pair {
             gradePlus2PI = gradePlus2PILeft;
         } else {
             gradePlus2PI = gradePlus2PIRight;
+        }
+
+        if(gradePlus2PI > 1.0){
+            gradePlus2PI = 1.0;
+        }else if(gradePlus2PI < 0) {
+            gradePlus2PI = 0;
         }
 
         double grade;
@@ -94,29 +117,29 @@ public class Pair {
             grade = gradeFloor;
         }
 
-        if (grade < 0) {
-            return 0;
-        } else {
-            return grade;
-        }
+
+        return grade;
+
 
     }
 
     /**
      * ρ軸上の地点_vにおけるグレードを算出
      *
-     * @param _v ρ軸上の点
+     * @param _left ρ軸上のビンの始点
+     * @param _right ρ軸上のビンの終点
      * @param _theta 着目しているハフ平面のθ軸上の点(角度)
      * @return グレード
      */
-    public double calculateGradeRho(double _v, double _theta) {
+    public double calculateGradeRho(double _left,double _right, double _theta) {
 
         double gradeLeft, gradeRight, grade;
 
-        gradeLeft = calculateFuzzyRhoTriangleav(_v)
-                + 1 - calculateFuzzyRhoTriangleb(_theta);
-        gradeRight = -calculateFuzzyRhoTriangleav(_v)
-                + 1 + calculateFuzzyRhoTriangleb(_theta);
+        gradeLeft = Math.max(calculateFuzzyRhoTriangleav(_left) + 1 - calculateFuzzyRhoTriangleb(_theta),
+                calculateFuzzyRhoTriangleav(_right) + 1 - calculateFuzzyRhoTriangleb(_theta));
+
+        gradeRight = Math.max(-calculateFuzzyRhoTriangleav(_left) + 1 + calculateFuzzyRhoTriangleb(_theta),
+                -calculateFuzzyRhoTriangleav(_right) + 1 + calculateFuzzyRhoTriangleb(_theta));
 
         if (gradeLeft > gradeRight) {
             grade = gradeRight;
@@ -126,6 +149,10 @@ public class Pair {
 
         if (grade < 0) {
             grade = 0;
+        }
+
+        if(grade > 1.0){
+            grade = 1.0;
         }
 
         return grade;
