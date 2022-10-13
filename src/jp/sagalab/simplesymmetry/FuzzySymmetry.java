@@ -128,7 +128,8 @@ public class FuzzySymmetry {
                         && v_s <= D + _pair.calculateCenterPoint().getF())) {
 
                     //距離側のグレード導出
-                    gradeRho = _pair.calculateGradeRho(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), i * intervalAngle);
+                    //gradeRho = _pair.calculateGradeRho(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), getBeginTheta(i), getEndTheta(i));
+                    gradeRho = _pair.calculateGradeRho2(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), i * intervalAngle);
 
                     //θとρのグレードを比較しそのAND(Minimum)を取り、ハフ投票
                     addGradeToPairList(i, j, Math.min(gradeTheta, gradeRho));

@@ -24,7 +24,7 @@ public class Input {
     public static List<Point> LoadPoint() {
 
 //        String fileName = "o15to60.csv";
-       String fileName = "2022_7_14_18_28_32_17.csv";
+       String fileName = "2022_10_13_22_42_12_985.csv";
 //        String fileName = "masterThesisSample1.csv";
 //        String fileName = "2017_8_24_14_10_55_887.csv";
 //        String fileName = "pointsforplesentation.csv";

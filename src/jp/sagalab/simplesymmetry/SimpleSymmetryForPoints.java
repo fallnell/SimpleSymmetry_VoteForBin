@@ -26,6 +26,7 @@ import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 
 
+
 import static jp.sagalab.simplesymmetry.Output.getFileName2;
 
 /**
@@ -143,9 +144,29 @@ public class SimpleSymmetryForPoints extends Application {
                     primaryStage2.setScene(scene2);
                     primaryStage2.show();
 
+                    gc.setStroke(Color.RED);
+                    for (int i = 0; i < m_points.size()-1; i++) {
+                        gc.strokeLine(m_points.get(i).getX(),m_points.get(i).getY(),m_points.get(i+1).getX(),m_points.get(i+1).getY());
+                    }
+                    gc.strokeLine(m_points.get(m_points.size()-1).getX(),m_points.get(m_points.size()-1).getY(),m_points.get(0).getX(),m_points.get(0).getY());
+
+
+                    gc.setStroke(Color.BLACK);
+                    for (int i = 0; i < m_points.size()-1; i++) {
+                        Pair p = Pair.create(m_points.get(i),m_points.get(i+1));
+                        gc.fillOval(p.calculateCenterPoint().getX()-3,p.calculateCenterPoint().getY()-3,6,6);
+                    }
+                    Pair p = Pair.create(m_points.get(m_points.size()-1),m_points.get(0));
+                    gc.fillOval(p.calculateCenterPoint().getX()-3,p.calculateCenterPoint().getY()-3,6,6);
+
                     for (int i = 0; i < axis.size(); i++) {
                         drawAxis(axis.get(i), gc);
                     }
+
+                    for(int i = axis.size()-5; i < axis.size(); i++) {
+                        System.out.println(axis.get(i).getGrade());
+                    }
+
 
                     for (int i = 0; i < m_points.size(); i++) {
                         gc.setFill(Color.BLACK);
@@ -404,6 +425,8 @@ public class SimpleSymmetryForPoints extends Application {
         } catch (IOException e) {
         }
     }
+
+
 
     /**
      * 直線の描画を行う

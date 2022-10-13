@@ -126,14 +126,75 @@ public class Pair {
     /**
      * ρ軸上の地点_vにおけるグレードを算出
      *
-     * @param _left ρ軸上のビンの始点
-     * @param _right ρ軸上のビンの終点
-     * @param _theta 着目しているハフ平面のθ軸上の点(角度)
+     * @param _rhoLeft ρ軸上のビンの始点
+     * @param _rhoRight ρ軸上のビンの終点
+     * @param _thetaLeft θ軸上のビンの始点
+     * @param _thetaRight θ軸上のビンの終点
      * @return グレード
      */
-    public double calculateGradeRho(double _left,double _right, double _theta) {
+    public double calculateGradeRho(double _rhoLeft,double _rhoRight, double _thetaLeft, double _thetaRight) {
 
-        double gradeLeft, gradeRight, grade;
+        double gradeLeft, gradeRight, grade, leftCenter, rightCenter;
+
+        //θがbinの始点の時の原点からペアの中点までの距離
+        leftCenter = this.calculateCenterPoint().getX() * Math.cos(_thetaLeft)
+                + this.calculateCenterPoint().getY() * Math.sin(_thetaLeft);
+
+        //θがbinの終点の時の原点からペアの中点までの距離
+        rightCenter = this.calculateCenterPoint().getX() * Math.cos(_thetaRight)
+                + this.calculateCenterPoint().getY() * Math.sin(_thetaRight);
+
+
+            //leftCenterとrightCenterがどちらもρ軸のbinの始点より下にある場合
+        if(leftCenter < _rhoLeft && rightCenter < _rhoLeft){
+            gradeLeft = Math.max(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaLeft),
+                calculateFuzzyRhoTriangleav(_rhoRight) + 1 - calculateFuzzyRhoTriangleb(_thetaLeft));
+
+            gradeRight = Math.max(-calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaLeft),
+                -calculateFuzzyRhoTriangleav(_rhoRight) + 1 + calculateFuzzyRhoTriangleb(_thetaLeft));
+
+            grade = Math.min(gradeLeft, gradeRight);
+
+            if (grade < 0) {
+                grade = 0;
+            }
+
+            if(grade > 1.0){
+                grade = 1.0;
+            }
+
+            //leftCenterとrightCenterがどちらもρ軸のbinの終点より上にある場合
+        }else if(leftCenter > _rhoRight && rightCenter > _rhoRight){
+            gradeLeft = Math.max(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaRight),
+                    calculateFuzzyRhoTriangleav(_rhoRight) + 1 - calculateFuzzyRhoTriangleb(_thetaRight));
+
+            gradeRight = Math.max(-calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaRight),
+                -calculateFuzzyRhoTriangleav(_rhoRight) + 1 + calculateFuzzyRhoTriangleb(_thetaRight));
+
+            grade = Math.min(gradeLeft, gradeRight);
+
+            if (grade < 0) {
+                grade = 0;
+            }
+
+            if(grade > 1.0){
+                grade = 1.0;
+            }
+
+            //ビンの内部に中点がある場合
+        }else{
+            grade = 1.0;
+        }
+
+
+        return grade;
+    }
+
+    public double calculateGradeRho2(double _left,double _right, double _theta) {
+
+        double gradeLeft, gradeRight, grade, leftCenter, rightCenter;
+
+
 
         gradeLeft = Math.max(calculateFuzzyRhoTriangleav(_left) + 1 - calculateFuzzyRhoTriangleb(_theta),
                 calculateFuzzyRhoTriangleav(_right) + 1 - calculateFuzzyRhoTriangleb(_theta));
