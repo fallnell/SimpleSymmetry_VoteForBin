@@ -144,11 +144,12 @@ public class SimpleSymmetryForPoints extends Application {
                     primaryStage2.setScene(scene2);
                     primaryStage2.show();
 
-                    gc.setStroke(Color.RED);
-                    for (int i = 0; i < m_points.size()-1; i++) {
-                        gc.strokeLine(m_points.get(i).getX(),m_points.get(i).getY(),m_points.get(i+1).getX(),m_points.get(i+1).getY());
-                    }
-                    gc.strokeLine(m_points.get(m_points.size()-1).getX(),m_points.get(m_points.size()-1).getY(),m_points.get(0).getX(),m_points.get(0).getY());
+
+//                    gc.setStroke(Color.RED);
+//                    for (int i = 0; i < m_points.size()-1; i++) {
+//                        gc.strokeLine(m_points.get(i).getX(),m_points.get(i).getY(),m_points.get(i+1).getX(),m_points.get(i+1).getY());
+//                    }
+//                    gc.strokeLine(m_points.get(m_points.size()-1).getX(),m_points.get(m_points.size()-1).getY(),m_points.get(0).getX(),m_points.get(0).getY());
 
 
                     gc.setStroke(Color.BLACK);
@@ -163,9 +164,9 @@ public class SimpleSymmetryForPoints extends Application {
                         drawAxis(axis.get(i), gc);
                     }
 
-                    for(int i = axis.size()-5; i < axis.size(); i++) {
-                        System.out.println(axis.get(i).getGrade());
-                    }
+//                    for(int i = axis.size()-5; i < axis.size(); i++) {
+//                        System.out.println(axis.get(i).getGrade());
+//                    }
 
 
                     for (int i = 0; i < m_points.size(); i++) {
@@ -445,6 +446,9 @@ public class SimpleSymmetryForPoints extends Application {
         x2 = (_axis.getDistance() - Math.sin(angle) * 0) / Math.cos(angle);
 
         _gc.setStroke(_axis.getColor());
+        if(_axis.getGrade() == 1.0) {
+            _gc.setStroke(Color.RED);
+        }
 
         if (Math.abs(x2) > CANVAS_SIZE_X) {
             double y1 = (_axis.getDistance() - Math.cos(angle) * CANVAS_SIZE_X) / Math.sin(angle);

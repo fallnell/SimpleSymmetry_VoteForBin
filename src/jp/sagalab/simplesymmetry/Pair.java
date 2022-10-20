@@ -147,13 +147,13 @@ public class Pair {
 
             //leftCenterとrightCenterがどちらもρ軸のbinの始点より下にある場合
         if(leftCenter < _rhoLeft && rightCenter < _rhoLeft){
-            gradeLeft = Math.max(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaLeft),
-                calculateFuzzyRhoTriangleav(_rhoRight) + 1 - calculateFuzzyRhoTriangleb(_thetaLeft));
+            gradeLeft = Math.min(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaLeft),
+                    -calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaLeft));
 
-            gradeRight = Math.max(-calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaLeft),
-                -calculateFuzzyRhoTriangleav(_rhoRight) + 1 + calculateFuzzyRhoTriangleb(_thetaLeft));
+            gradeRight = Math.min(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaRight),
+                    -calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaRight));
 
-            grade = Math.min(gradeLeft, gradeRight);
+            grade = Math.max(gradeLeft, gradeRight);
 
             if (grade < 0) {
                 grade = 0;
@@ -165,13 +165,13 @@ public class Pair {
 
             //leftCenterとrightCenterがどちらもρ軸のbinの終点より上にある場合
         }else if(leftCenter > _rhoRight && rightCenter > _rhoRight){
-            gradeLeft = Math.max(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaRight),
-                    calculateFuzzyRhoTriangleav(_rhoRight) + 1 - calculateFuzzyRhoTriangleb(_thetaRight));
+            gradeLeft = Math.min(calculateFuzzyRhoTriangleav(_rhoRight) + 1 - calculateFuzzyRhoTriangleb(_thetaLeft),
+                    -calculateFuzzyRhoTriangleav(_rhoRight) + 1 + calculateFuzzyRhoTriangleb(_thetaLeft));
 
-            gradeRight = Math.max(-calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaRight),
-                -calculateFuzzyRhoTriangleav(_rhoRight) + 1 + calculateFuzzyRhoTriangleb(_thetaRight));
+            gradeRight = Math.min(calculateFuzzyRhoTriangleav(_rhoRight) + 1 - calculateFuzzyRhoTriangleb(_thetaRight),
+                    -calculateFuzzyRhoTriangleav(_rhoRight) + 1 + calculateFuzzyRhoTriangleb(_thetaRight));
 
-            grade = Math.min(gradeLeft, gradeRight);
+            grade = Math.max(gradeLeft, gradeRight);
 
             if (grade < 0) {
                 grade = 0;
@@ -192,7 +192,7 @@ public class Pair {
 
     public double calculateGradeRho2(double _left,double _right, double _theta) {
 
-        double gradeLeft, gradeRight, grade, leftCenter, rightCenter;
+        double gradeLeft, gradeRight, grade;
 
 
 
