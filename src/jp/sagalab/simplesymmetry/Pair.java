@@ -219,6 +219,75 @@ public class Pair {
         return grade;
     }
 
+    public double calculateGradeRho3(double _rhoLeft,double _rhoRight,double _rhoCenter, double _thetaLeft, double _thetaRight, double _thetaCenter) {
+
+        double gradeLeft, gradeRight, gradeCenter, grade, leftCenter, rightCenter, centerCenter;
+
+        //θがbinの始点の時の原点からペアの中点までの距離
+        leftCenter = this.calculateCenterPoint().getX() * Math.cos(_thetaLeft)
+                + this.calculateCenterPoint().getY() * Math.sin(_thetaLeft);
+
+        //θがbinの終点の時の原点からペアの中点までの距離
+        rightCenter = this.calculateCenterPoint().getX() * Math.cos(_thetaRight)
+                + this.calculateCenterPoint().getY() * Math.sin(_thetaRight);
+
+        centerCenter = this.calculateCenterPoint().getX() * Math.cos(_thetaCenter)
+                + this.calculateCenterPoint().getY() * Math.sin(_thetaCenter);
+
+
+        //leftCenterとrightCenterとcenterCenterがすべてρ軸のbinの始点より下にある場合
+        if(leftCenter < _rhoLeft && rightCenter < _rhoLeft && centerCenter < _rhoCenter){
+            gradeLeft = Math.min(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaLeft),
+                    -calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaLeft));
+
+            gradeRight = Math.min(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaRight),
+                    -calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaRight));
+
+            gradeCenter = Math.min(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaCenter),
+                    -calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaCenter));
+
+            grade = Math.max(gradeLeft, gradeRight);
+            grade = Math.max(grade, gradeCenter);
+
+            if (grade < 0) {
+                grade = 0;
+            }
+
+            if(grade > 1.0){
+                grade = 1.0;
+            }
+
+            //leftCenterとrightCenterとcenterCenterがすべてρ軸のbinの終点より上にある場合
+        }else if(leftCenter > _rhoRight && rightCenter > _rhoRight && centerCenter > _rhoCenter){
+            gradeLeft = Math.min(calculateFuzzyRhoTriangleav(_rhoRight) + 1 - calculateFuzzyRhoTriangleb(_thetaLeft),
+                    -calculateFuzzyRhoTriangleav(_rhoRight) + 1 + calculateFuzzyRhoTriangleb(_thetaLeft));
+
+            gradeRight = Math.min(calculateFuzzyRhoTriangleav(_rhoRight) + 1 - calculateFuzzyRhoTriangleb(_thetaRight),
+                    -calculateFuzzyRhoTriangleav(_rhoRight) + 1 + calculateFuzzyRhoTriangleb(_thetaRight));
+
+            gradeCenter = Math.min(calculateFuzzyRhoTriangleav(_rhoRight) + 1 - calculateFuzzyRhoTriangleb(_thetaCenter),
+                    -calculateFuzzyRhoTriangleav(_rhoRight) + 1 + calculateFuzzyRhoTriangleb(_thetaCenter));
+
+            grade = Math.max(gradeLeft, gradeRight);
+            grade = Math.max(grade, gradeCenter);
+
+            if (grade < 0) {
+                grade = 0;
+            }
+
+            if(grade > 1.0){
+                grade = 1.0;
+            }
+
+            //ビンの内部に中点がある場合
+        }else{
+            grade = 1.0;
+        }
+
+
+        return grade;
+    }
+
     /**
      * 2点の中点を返します．
      *

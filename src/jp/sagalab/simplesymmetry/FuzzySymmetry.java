@@ -120,24 +120,32 @@ public class FuzzySymmetry {
             double D = _pair.calculateCenterPoint().getX() * Math.cos(i * intervalAngle)
                     + _pair.calculateCenterPoint().getY() * Math.sin(i * intervalAngle);
 
+            //距離側のグレード導出
             for (int j = 0; j < NUM_OF_DIVISION_PIXELS; j++) {
-                double v_s = (R / NUM_OF_DIVISION_PIXELS) * ((double) j - NUM_OF_DIVISION_PIXELS / 2);
 
-                // 計算量削減目的で投票が行われうる時だけ考える 
-                if ((D - _pair.calculateCenterPoint().getF() <= v_s
-                        && v_s <= D + _pair.calculateCenterPoint().getF())) {
+                double v1 = getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2);
+                double v2 = getEndRho(j - NUM_OF_DIVISION_PIXELS / 2);
 
-                    //距離側のグレード導出
-                    gradeRho = _pair.calculateGradeRho(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), getBeginTheta(i), getEndTheta(i));
-                    //gradeRho = _pair.calculateGradeRho2(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), i * intervalAngle);
+                // 計算量削減目的で投票が行われうる時だけ考える
+                if ( (  D - _pair.calculateCenterPoint().getF() <= v1 && v1 <= D + _pair.calculateCenterPoint().getF() )
+                        || (  D - _pair.calculateCenterPoint().getF() <= v2 && v2 <= D + _pair.calculateCenterPoint().getF() ) ){
+
+                    //直線近似
+//                    gradeRho = _pair.calculateGradeRho(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), getBeginTheta(i), getEndTheta(i));
+
+                    //直線近似なし
+//                    gradeRho = _pair.calculateGradeRho2(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), i * intervalAngle);
+
+                    //ビンの中心を使った直線近似
+                    gradeRho = _pair.calculateGradeRho3(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), (j - NUM_OF_DIVISION_PIXELS / 2) * R / NUM_OF_DIVISION_PIXELS, getBeginTheta(i), getEndTheta(i), i * intervalAngle);
 
                     //θとρのグレードを比較しそのAND(Minimum)を取り、ハフ投票
                     addGradeToPairList(i, j, Math.min(gradeTheta, gradeRho));
 
                     /*ペア毎の投票結果を保存*/
                     VotesOfPair[i][j] = Math.min(gradeTheta, gradeRho);
-
                 }
+
             }
         }
         /*ペア毎の投票結果をCSVファイルとして出力*/
@@ -276,8 +284,8 @@ public class FuzzySymmetry {
     /**
      * ハフ平面におけるθとρの分割数の分割倍率
      */
-    public static final int MAGNIFICATION_OF_NUM_OF_DIVISION_PIXELS = 10;
-    public static final int MAGNIFICATION_OF_NUM_OF_DIVISION_ANGLES = 10;
+    public static final int MAGNIFICATION_OF_NUM_OF_DIVISION_PIXELS = 1;
+    public static final int MAGNIFICATION_OF_NUM_OF_DIVISION_ANGLES = 1;
 
     /**
      * ハフ平面におけるρの分割数
@@ -285,14 +293,14 @@ public class FuzzySymmetry {
      * 論文中では正部分での分割数を指定していたが，本プログラム中では
      * 正負方向全体の分割数を指定している点に注意
      */
-//    public static final int NUM_OF_DIVISION_PIXELS = 1600;
+
     public static final int NUM_OF_DIVISION_PIXELS = 1600/MAGNIFICATION_OF_NUM_OF_DIVISION_PIXELS;
 
     /**
      * ハフ平面におけるθの分割数
      * N_θ
      */
-//    public static final int NUM_OF_DIVISION_ANGLES = 360;
+
     public static final int NUM_OF_DIVISION_ANGLES = 360/MAGNIFICATION_OF_NUM_OF_DIVISION_ANGLES;
 
     /**

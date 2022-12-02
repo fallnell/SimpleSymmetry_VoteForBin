@@ -1,0 +1,10 @@
+set xrange [0:360]
+set yrange [-800:800]
+set view 0, 0, 1, 1
+unset ztics
+set xlabel 't (Voting point on the θ axis)'
+set label 1 's (Voting point on the ρ axis)' at 423,700 right
+set label 1 rotate by 90
+set palette defined (0 "white", 1 "black")
+plot 'C:/Users/ytnoo/SimpleSymmetry_VoteForBin/files/planes/SymmetricAxisHough0.csv' with image title 'SymmetricAxisHough0'
+

@@ -274,7 +274,11 @@ public class SymmetricAxis {
             alpha = 0;
         }
 
-        return Color.hsb(120, _grade, 1, 1);
+        if(_grade == 1.0) {
+            return Color.hsb(120, _grade, 1, 0);
+        }else{
+            return Color.hsb(120, _grade, 1, 1);
+        }
     }
 
     /**

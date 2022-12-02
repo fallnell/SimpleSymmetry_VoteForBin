@@ -145,28 +145,33 @@ public class SimpleSymmetryForPoints extends Application {
                     primaryStage2.show();
 
 
-//                    gc.setStroke(Color.RED);
+
+//                    gc.setStroke(Color.BLACK);
 //                    for (int i = 0; i < m_points.size()-1; i++) {
-//                        gc.strokeLine(m_points.get(i).getX(),m_points.get(i).getY(),m_points.get(i+1).getX(),m_points.get(i+1).getY());
+//                        Pair p = Pair.create(m_points.get(i),m_points.get(i+1));
+//                        gc.fillOval(p.calculateCenterPoint().getX()-3,p.calculateCenterPoint().getY()-3,6,6);
 //                    }
-//                    gc.strokeLine(m_points.get(m_points.size()-1).getX(),m_points.get(m_points.size()-1).getY(),m_points.get(0).getX(),m_points.get(0).getY());
+//                    Pair p = Pair.create(m_points.get(m_points.size()-1),m_points.get(0));
+//                    gc.fillOval(p.calculateCenterPoint().getX()-3,p.calculateCenterPoint().getY()-3,6,6);
 
-
-                    gc.setStroke(Color.BLACK);
-                    for (int i = 0; i < m_points.size()-1; i++) {
-                        Pair p = Pair.create(m_points.get(i),m_points.get(i+1));
-                        gc.fillOval(p.calculateCenterPoint().getX()-3,p.calculateCenterPoint().getY()-3,6,6);
-                    }
-                    Pair p = Pair.create(m_points.get(m_points.size()-1),m_points.get(0));
-                    gc.fillOval(p.calculateCenterPoint().getX()-3,p.calculateCenterPoint().getY()-3,6,6);
 
                     for (int i = 0; i < axis.size(); i++) {
                         drawAxis(axis.get(i), gc);
                     }
 
-//                    for(int i = axis.size()-5; i < axis.size(); i++) {
-//                        System.out.println(axis.get(i).getGrade());
-//                    }
+                    //最大グレードのビンのみ表示
+//                    drawAxis2(axis.get(axis.size()-1),gc);
+
+                    //グレード出力用
+                    if(axis.size() < 5){
+                        for (int i = 0; i < axis.size(); i++) {
+                            System.out.println(axis.get(i).getGrade());
+                        }
+                    }else {
+                        for (int i = axis.size() - 5; i < axis.size(); i++) {
+                            System.out.println(axis.get(i).getGrade());
+                        }
+                    }
 
 
                     for (int i = 0; i < m_points.size(); i++) {
@@ -430,9 +435,8 @@ public class SimpleSymmetryForPoints extends Application {
 
 
     /**
-     * 直線の描画を行う
-     *
-     * @param _axis 描画したい軸
+     * ビンの中心のみの軸の描画を行う
+     * @param _axis 描画したいビン
      * @param _gc GraphicsContext
      */
     private void drawAxis(SymmetricAxis _axis, GraphicsContext _gc) {
@@ -463,11 +467,60 @@ public class SimpleSymmetryForPoints extends Application {
     }
 
     /**
+     * ビンの範囲の描画を行う
+     * @param _axis 描画するビン
+     * @param _gc GraphicsContext
+     */
+    private void drawAxis2(SymmetricAxis _axis, GraphicsContext _gc) {
+
+        double x1, x2;
+
+        double spanRho = FuzzySymmetry.R / FuzzySymmetry.NUM_OF_DIVISION_PIXELS;
+        double spanTheta = 2 * Math.PI / FuzzySymmetry.NUM_OF_DIVISION_ANGLES;
+
+
+        double distance = _axis.getDistance() - spanRho/2;
+        double angle = _axis.getAngle() - spanTheta/2;
+        double distanceNum = spanRho / 100;
+        double angleNum = spanTheta / 100;
+
+        _gc.setStroke(_axis.getColor());
+        if (_axis.getGrade() == 1.0) {
+            _gc.setStroke(Color.RED);
+        }
+        
+        double n;
+        double m;
+
+        for(int i = 0; i < 100; i++) {
+            for (int j = 0; j < 100; j++) {
+                n = j * distanceNum;
+                m = i * angleNum;
+
+                x1 = ((distance + n) - Math.sin(angle + m) * CANVAS_SIZE_Y) / Math.cos(angle + m);
+                x2 = ((distance + n) - Math.sin(angle + m) * 0) / Math.cos(angle + m);
+
+                if (Math.abs(x2) > CANVAS_SIZE_X) {
+                    double y1 = ((distance + n) - Math.cos(angle + m) * CANVAS_SIZE_X) / Math.sin(angle + m);
+                    double y2 = ((distance + n) - Math.cos(angle + m) * 0) / Math.sin(angle + m);
+
+                    _gc.strokeLine(CANVAS_SIZE_X, y1, 0, y2);
+                } else {
+                    _gc.strokeLine(x1, CANVAS_SIZE_Y, x2, 0);
+                }
+            }
+        }
+
+        _gc.setStroke(Color.BLACK);
+    }
+
+    /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         FuzzySymmetry.initializeHoughPlane();
 
+        PlatformUtils.deleteDirectory("files/planes");
         PlatformUtils.deleteDirectory("files/planes(pair)");
         PlatformUtils.deleteDirectory("files/planesPicture(pair)");
 

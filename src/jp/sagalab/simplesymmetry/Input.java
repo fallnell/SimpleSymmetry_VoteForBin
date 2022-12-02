@@ -23,15 +23,11 @@ public class Input {
      */
     public static List<Point> LoadPoint() {
 
-//        String fileName = "o15to60.csv";
-       String fileName = "2022_10_20_11_46_53_873.csv";
-//        String fileName = "masterThesisSample1.csv";
-//        String fileName = "2017_8_24_14_10_55_887.csv";
-//        String fileName = "pointsforplesentation.csv";
-//        String fileName = "2017_8_25_12_13_55_228.csv";
-//        String fileName = "2018_1_11_13_39_53_68.csv";
-//        String fileName = "2018_11_6_11_10_14_348.csv";
-//        String fileName = "Hokkaido_fuzzy.csv";
+
+//       String fileName = "2022_12_1_19_52_50_313.csv";
+       String fileName = "2022_12_2_16_33_56_222.csv";
+//       String fileName = "2022_12_1_20_14_0_278.csv";
+
         List<Point> points = new ArrayList<>();
         double x, y, f;
 
