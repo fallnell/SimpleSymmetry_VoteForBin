@@ -451,7 +451,7 @@ public class SimpleSymmetryForPoints extends Application {
 
         _gc.setStroke(_axis.getColor());
         if(_axis.getGrade() == 1.0) {
-            _gc.setStroke(Color.RED);
+            _gc.setStroke(Color.BLUE);
         }
 
         if (Math.abs(x2) > CANVAS_SIZE_X) {

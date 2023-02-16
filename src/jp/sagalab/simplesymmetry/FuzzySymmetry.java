@@ -117,8 +117,10 @@ public class FuzzySymmetry {
                     _pair.calculateGrade(getBeginTheta(i), getEndTheta(i), false));
 
             /* θに対応するρの値を算出 */
-            double D = _pair.calculateCenterPoint().getX() * Math.cos(i * intervalAngle)
-                    + _pair.calculateCenterPoint().getY() * Math.sin(i * intervalAngle);
+            double D1 = _pair.calculateCenterPoint().getX() * Math.cos(getBeginTheta(i))
+                    + _pair.calculateCenterPoint().getY() * Math.sin(getBeginTheta(i));
+            double D2 = _pair.calculateCenterPoint().getX() * Math.cos(getEndTheta(i))
+                    + _pair.calculateCenterPoint().getY() * Math.sin(getEndTheta(i));
 
             //距離側のグレード導出
             for (int j = 0; j < NUM_OF_DIVISION_PIXELS; j++) {
@@ -126,25 +128,24 @@ public class FuzzySymmetry {
                 double v1 = getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2);
                 double v2 = getEndRho(j - NUM_OF_DIVISION_PIXELS / 2);
 
-                // 計算量削減目的で投票が行われうる時だけ考える
-                if ( (  D - _pair.calculateCenterPoint().getF() <= v1 && v1 <= D + _pair.calculateCenterPoint().getF() )
-                        || (  D - _pair.calculateCenterPoint().getF() <= v2 && v2 <= D + _pair.calculateCenterPoint().getF() ) ){
+
+
 
                     //直線近似
-//                    gradeRho = _pair.calculateGradeRho(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), getBeginTheta(i), getEndTheta(i));
+                    gradeRho = _pair.calculateGradeRho(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), getBeginTheta(i), getEndTheta(i));
 
                     //直線近似なし
 //                    gradeRho = _pair.calculateGradeRho2(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), i * intervalAngle);
 
                     //ビンの中心を使った直線近似
-                    gradeRho = _pair.calculateGradeRho3(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), (j - NUM_OF_DIVISION_PIXELS / 2) * R / NUM_OF_DIVISION_PIXELS, getBeginTheta(i), getEndTheta(i), i * intervalAngle);
+//                    gradeRho = _pair.calculateGradeRho3(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), (j - NUM_OF_DIVISION_PIXELS / 2) * R / NUM_OF_DIVISION_PIXELS, getBeginTheta(i), getEndTheta(i), i * intervalAngle);
 
                     //θとρのグレードを比較しそのAND(Minimum)を取り、ハフ投票
                     addGradeToPairList(i, j, Math.min(gradeTheta, gradeRho));
 
                     /*ペア毎の投票結果を保存*/
                     VotesOfPair[i][j] = Math.min(gradeTheta, gradeRho);
-                }
+//                }
 
             }
         }

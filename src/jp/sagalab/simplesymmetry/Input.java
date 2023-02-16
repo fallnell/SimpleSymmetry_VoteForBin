@@ -25,7 +25,7 @@ public class Input {
 
 
 //       String fileName = "2022_12_1_19_52_50_313.csv";
-       String fileName = "2022_12_2_16_33_56_222.csv";
+       String fileName = "2023_2_2_19_28_3_355.csv";
 //       String fileName = "2022_12_1_20_14_0_278.csv";
 
         List<Point> points = new ArrayList<>();
