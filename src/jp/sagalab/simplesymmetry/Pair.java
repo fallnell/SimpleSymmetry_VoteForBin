@@ -31,9 +31,9 @@ public class Pair {
      * @param _left θ軸上のビンの始点
      * @param _right θ軸上のビンの終点
      * @param _bool trueであれば0~πまで，falseであればπ~2πまで
-     * @return グレード
+     * @return グレード;
      */
-    public double calculateGrade(double _left, double _right, boolean _bool) {
+    public double calculatePossibilityTheta(double _left, double _right, boolean _bool) {
 
         double leftB;
         double rightB;
@@ -104,7 +104,6 @@ public class Pair {
         }
 
         double grade;
-
         if (gradePlus2PI > gradeCenter && gradePlus2PI > gradeMinus2PI) {
             grade = gradePlus2PI;
         } else if (gradeMinus2PI > gradeCenter && gradeMinus2PI > gradePlus2PI) {
@@ -117,10 +116,7 @@ public class Pair {
             grade = gradeFloor;
         }
 
-
         return grade;
-
-
     }
 
     /**
@@ -132,7 +128,7 @@ public class Pair {
      * @param _thetaRight θ軸上のビンの終点
      * @return グレード
      */
-    public double calculateGradeRho(double _rhoLeft,double _rhoRight, double _thetaLeft, double _thetaRight) {
+    public double calculatePossibilityRho(double _rhoLeft, double _rhoRight, double _thetaLeft, double _thetaRight) {
 
         double gradeLeft, gradeRight, grade, leftCenter, rightCenter;
 
@@ -145,7 +141,7 @@ public class Pair {
                 + this.calculateCenterPoint().getY() * Math.sin(_thetaRight);
 
 
-            //leftCenterとrightCenterがどちらもρ軸のbinの始点より下にある場合
+        //leftCenterとrightCenterがどちらもρ軸のbinの始点より下にある場合
         if(leftCenter < _rhoLeft && rightCenter < _rhoLeft){
             gradeLeft = Math.min(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaLeft),
                     -calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaLeft));
@@ -190,11 +186,133 @@ public class Pair {
         return grade;
     }
 
+    public double calculateNecessityRho(double _rhoLeft,double _rhoRight, double _thetaLeft, double _thetaRight){
+        double necessityThetaLeftRhoLeft, necessityThetaLeftRhoRight, necessityThetaLeft;
+        double necessityThetaRightRhoLeft, necessityThetaRightRhoRight, necessityThetaRight;
+        double necessity;
+
+        necessityThetaLeftRhoLeft = Math.min(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaLeft),
+                -calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaLeft));
+
+        necessityThetaLeftRhoRight = Math.min(calculateFuzzyRhoTriangleav(_rhoRight) + 1 - calculateFuzzyRhoTriangleb(_thetaLeft),
+                -calculateFuzzyRhoTriangleav(_rhoRight) + 1 + calculateFuzzyRhoTriangleb(_thetaLeft));
+
+        necessityThetaLeft = Math.min(necessityThetaLeftRhoLeft, necessityThetaLeftRhoRight);
+
+        necessityThetaRightRhoLeft = Math.min(calculateFuzzyRhoTriangleav(_rhoLeft) + 1 - calculateFuzzyRhoTriangleb(_thetaRight),
+                -calculateFuzzyRhoTriangleav(_rhoLeft) + 1 + calculateFuzzyRhoTriangleb(_thetaRight));
+
+        necessityThetaRightRhoRight = Math.min(calculateFuzzyRhoTriangleav(_rhoRight) + 1 - calculateFuzzyRhoTriangleb(_thetaRight),
+                -calculateFuzzyRhoTriangleav(_rhoRight) + 1 + calculateFuzzyRhoTriangleb(_thetaRight));
+
+        necessityThetaRight = Math.min(necessityThetaRightRhoLeft, necessityThetaRightRhoRight);
+
+        necessity = Math.min(necessityThetaLeft, necessityThetaRight);
+
+        if(necessity > 1.0){
+            necessity = 1.0;
+        } else if (necessity < 0.0){
+            necessity = 0.0;
+        }
+
+        return necessity;
+    }
+
+    public double calculateNecessityTheta(double _left, double _right, boolean _bool){
+        double leftB;
+        double rightB;
+
+        if (_bool) {
+            leftB = calculateFuzzyTriangleLeftb(this.calculateRadian());
+            rightB = calculateFuzzyTriangleRightb(this.calculateRadian());
+        } else {
+            leftB = calculateFuzzyTriangleLeftb(this.calculateRadian() + Math.PI);
+            rightB = calculateFuzzyTriangleRightb(this.calculateRadian() + Math.PI);
+        }
+
+        double necessityFloor = 1 - (this.calculateDistance()) / (this.m_p1.getF() + this.m_p2.getF());
+
+        double necessityMinus2PILeft = Math.max(calculateFuzzyTriangleLeftau(_left - 2 * Math.PI) + leftB,
+                calculateFuzzyTriangleLeftau(_right - 2 * Math.PI) + leftB);
+        double necessityMinus2PIRight = Math.max(calculateFuzzyTriangleRightau(_left - 2 * Math.PI) + rightB,
+                calculateFuzzyTriangleRightau(_right - 2 * Math.PI) + rightB);
+
+        double necessityMinus2PI = Math.min(necessityMinus2PILeft, necessityMinus2PIRight);
+
+//        if (necessityMinus2PILeft < necessityMinus2PIRight) {
+//            necessityMinus2PI = necessityMinus2PIRight;
+//        } else {
+//            necessityMinus2PI = necessityMinus2PILeft;
+//        }
+//
+//        if(necessityMinus2PI > 1.0){
+//            necessityMinus2PI = 1.0;
+//        }else if(necessityMinus2PI < 0) {
+//            necessityMinus2PI = 0;
+//        }
+
+        double necessityLeft = Math.max(calculateFuzzyTriangleLeftau(_left) + leftB,calculateFuzzyTriangleLeftau(_right) + leftB);
+        double necessityRight = Math.max(calculateFuzzyTriangleRightau(_left) + rightB,calculateFuzzyTriangleRightau(_right) + rightB);
+
+        double necessityCenter = Math.min(necessityLeft, necessityRight);
+
+//        if (necessityLeft < necessityRight) {
+//            necessityCenter = necessityRight;
+//        } else {
+//            necessityCenter = necessityLeft;
+//        }
+//
+//        if(necessityCenter > 1.0){
+//            necessityCenter = 1.0;
+//        }else if(necessityCenter < 0){
+//            necessityCenter = 0;
+//        }
+
+        double necessityPlus2PILeft = Math.max(calculateFuzzyTriangleLeftau(_left + 2 * Math.PI) + leftB,
+                calculateFuzzyTriangleLeftau(_right + 2 * Math.PI) + leftB);
+        double necessityPlus2PIRight = Math.max(calculateFuzzyTriangleRightau(_left + 2 * Math.PI) + rightB,
+                calculateFuzzyTriangleRightau(_right + 2 * Math.PI) + rightB);
+
+        double necessityPlus2PI = Math.min(necessityPlus2PILeft, necessityPlus2PIRight);
+
+//        if (necessityPlus2PILeft < necessityPlus2PIRight) {
+//            necessityPlus2PI = necessityPlus2PIRight;
+//        } else {
+//            necessityPlus2PI = necessityPlus2PILeft;
+//        }
+//
+//        if(necessityPlus2PI > 1.0){
+//            necessityPlus2PI = 1.0;
+//        }else if(necessityPlus2PI < 0){
+//            necessityPlus2PI = 0;
+//        }
+
+        double necessity;
+
+        if (necessityPlus2PI > necessityCenter && necessityPlus2PI > necessityMinus2PI){
+            necessity = necessityPlus2PI;
+        } else if (necessityMinus2PI > necessityCenter && necessityMinus2PI > necessityPlus2PI){
+            necessity = necessityMinus2PI;
+        } else {
+            necessity = necessityCenter;
+        }
+
+        if(necessity < necessityFloor) {
+            necessity = necessityFloor;
+        }
+
+        if(necessity > 1.0){
+            necessity = 1.0;
+        }else if(necessity < 0){
+            necessity = 0;
+        }
+
+        return necessity;
+    }
+
     public double calculateGradeRho2(double _left,double _right, double _theta) {
 
         double gradeLeft, gradeRight, grade;
-
-
 
         gradeLeft = Math.max(calculateFuzzyRhoTriangleav(_left) + 1 - calculateFuzzyRhoTriangleb(_theta),
                 calculateFuzzyRhoTriangleav(_right) + 1 - calculateFuzzyRhoTriangleb(_theta));
@@ -295,8 +413,8 @@ public class Pair {
      */
     public Point calculateCenterPoint() {
 
-        double x = (m_p1.getX() + m_p2.getX()) / 2;
-        double y = (m_p1.getY() + m_p2.getY()) / 2;
+        double x = (m_p1.getX() + m_p2.getX()) / 2 - FuzzySymmetry.m_centroid.getX();
+        double y = (m_p1.getY() + m_p2.getY()) / 2 - FuzzySymmetry.m_centroid.getY();
         double f = (m_p1.getF() + m_p2.getF()) / 2;
 
         return Point.create(x, y, f);
@@ -322,7 +440,6 @@ public class Pair {
      */
     public double calculateRadian() {
         double radian = Math.atan2(m_p1.getY() - m_p2.getY(), m_p1.getX() - m_p2.getX());
-
         return normalizeAngle1(radian);
     }
 

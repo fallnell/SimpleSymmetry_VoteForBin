@@ -24,9 +24,9 @@ public class Input {
     public static List<Point> LoadPoint() {
 
 
-//       String fileName = "2022_12_1_19_52_50_313.csv";
-       String fileName = "2023_2_2_19_28_3_355.csv";
-//       String fileName = "2022_12_1_20_14_0_278.csv";
+//       String fileName = "2023_11_20_16_52_26_385.csv";
+        String fileName = "test4Point150.csv";
+//        String fileName = "2023_10_25_13_43_14_711.csv";
 
         List<Point> points = new ArrayList<>();
         double x, y, f;

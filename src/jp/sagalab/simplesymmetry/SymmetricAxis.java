@@ -87,6 +87,10 @@ public class SymmetricAxis {
         return m_grade;
     }
 
+    public double getNecessity(){
+        return m_necessity;
+    }
+
     public int numOfCurve() {
         return m_numOfCurve1;
     }
@@ -137,7 +141,7 @@ public class SymmetricAxis {
             throw new IllegalArgumentException("_deltaDistance is NaN.");
         }
 
-        return new SymmetricAxis(_angle, _distance, _deltaAngle, _deltaDistance, _mu, _centralPoint, Color.rgb(0, 0, 0, 0.5), 0, 0, 0);
+        return new SymmetricAxis(_angle, _distance, _deltaAngle, _deltaDistance, _mu, _centralPoint, Color.rgb(0, 0, 0, 0.5), 0, 0, 0, 0);
     }
 
     /**
@@ -189,7 +193,7 @@ public class SymmetricAxis {
         }
 
         return new SymmetricAxis(_angle, _distance, _deltaAngle, _deltaDistance,
-                _mu, _centralPoint, Color.rgb(0, 0, 0, 0.5), 0, _numOfCurve1, _numOfCurve2);
+                _mu, _centralPoint, Color.rgb(0, 0, 0, 0.5), 0, 0, _numOfCurve1, _numOfCurve2);
     }
 
     /**
@@ -206,7 +210,7 @@ public class SymmetricAxis {
      * @return インスタンス
      */
     public static SymmetricAxis create(double _angle, double _distance,
-            double _deltaAngle, double _deltaDistance, double _mu, Point _centralPoint, Color _color, double _grade) {
+            double _deltaAngle, double _deltaDistance, double _mu, Point _centralPoint, Color _color, double _grade, double _necessity) {
 
         if (Double.isNaN(_angle)) {
             throw new IllegalArgumentException("_angle is NaN.");
@@ -242,7 +246,7 @@ public class SymmetricAxis {
             throw new IllegalArgumentException("_deltaDistance is NaN.");
         }
 
-        return new SymmetricAxis(_angle, _distance, _deltaAngle, _deltaDistance, _mu, _centralPoint, _color, _grade, 0, 0);
+        return new SymmetricAxis(_angle, _distance, _deltaAngle, _deltaDistance, _mu, _centralPoint, _color, _grade, _necessity, 0, 0);
     }
 
     /**
@@ -258,27 +262,13 @@ public class SymmetricAxis {
     }
 
     public static Color setColor(double _grade) {
-
-        double alpha = _grade / (1 - FuzzySymmetry.PASSING_AVERAGE)
-                - FuzzySymmetry.PASSING_AVERAGE / (1 - FuzzySymmetry.PASSING_AVERAGE);
-
         if (_grade > 1) {
             _grade = 1.0;
         } else if (_grade < 0) {
             _grade = 0.0;
         }
 
-        if (alpha > 1) {
-            alpha = 1.0;
-        } else if (alpha < 0) {
-            alpha = 0;
-        }
-
-        if(_grade == 1.0) {
-            return Color.hsb(120, _grade, 1, 0);
-        }else{
-            return Color.hsb(120, _grade, 1, 1);
-        }
+        return Color.hsb(120, _grade, 1, 1);
     }
 
     /**
@@ -386,7 +376,7 @@ public class SymmetricAxis {
      */
     private SymmetricAxis(double _angle, double _distance,
             double _deltaAngle, double _deltaDistance, double _mu,
-            Point _centralPoint, Color _color, double _grade, int _numOfCurve1, int _numOfCurve2) {
+            Point _centralPoint, Color _color, double _grade, double _necessity, int _numOfCurve1, int _numOfCurve2) {
 
         m_angle = _angle;
         m_distance = _distance;
@@ -396,6 +386,7 @@ public class SymmetricAxis {
         m_mu = _mu;
         m_color = _color;
         m_grade = _grade;
+        m_necessity = _necessity;
         m_numOfCurve1 = _numOfCurve1;
         m_numOfCurve2 = _numOfCurve2;
     }
@@ -432,6 +423,9 @@ public class SymmetricAxis {
      * 対称軸のグレード
      */
     private final double m_grade;
+
+    private final double m_necessity;
+
     /**
      * 曲線内での点の番号
      */

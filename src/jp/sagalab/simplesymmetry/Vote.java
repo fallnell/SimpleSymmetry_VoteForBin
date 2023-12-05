@@ -23,9 +23,9 @@ public class Vote {
      * @param _index2 2つ目の点のインデックス
      * @return インスタンス
      */
-    public static Vote create(double _grade, int _index1, int _index2) {
+    public static Vote create(double _grade, int _index1, int _index2, double _pivotTheta, double _pivotRho) {
 
-        return new Vote(_grade, _index1, _index2);
+        return new Vote(_grade, _index1, _index2, _pivotTheta, _pivotRho);
 
     }
 
@@ -116,7 +116,7 @@ public class Vote {
             }
         }
 
-        return new Vote(0, 0, 0);
+        return new Vote(0, 0, 0, 0, 0);
 
     }
 
@@ -163,7 +163,7 @@ public class Vote {
             }
 
         }
-        return new Vote(0, 0, 0);
+        return new Vote(0, 0, 0, 0, 0);
     }
 
     /**
@@ -211,7 +211,7 @@ public class Vote {
 
         }
 
-        return new Vote(0, 0, 0);
+        return new Vote(0, 0, 0, 0, 0);
     }
 
     /**
@@ -343,12 +343,13 @@ public class Vote {
      * @param _index1 1つ目の点のインデックス
      * @param _index2 2つ目の点のインデックス
      */
-    private Vote(double _grade, int _index1, int _index2) {
+    private Vote(double _grade, int _index1, int _index2, double _pivotTheta, double _pivotRho) {
 
         m_grade = _grade;
         m_index1 = _index1;
         m_index2 = _index2;
-
+        m_pivotTheta = _pivotTheta;
+        m_pivotRho = _pivotRho;
     }
 
     /**
@@ -370,4 +371,7 @@ public class Vote {
      */
     private static final double ALLOWANCE = 1.0;
 
+    private final double m_pivotTheta;
+
+    private final double m_pivotRho;
 }

@@ -27,7 +27,12 @@ public class FuzzySymmetry {
     public static List<SymmetricAxis> generateSymmetricAxis(List<? extends Point> _points) {
 
         //ハフ空間の初期化
-        initializeHoughPlaneCalculate();
+        initialize();
+
+        if(useEmphasis)
+            m_centroid = calculateCentroid(_points);
+        else
+            m_centroid = Point.create(0,0,0);
 
         long start = System.currentTimeMillis();
 
@@ -50,48 +55,82 @@ public class FuzzySymmetry {
 
         //ハフ空間のデータをCSVファイルに出力
         try {
-            Output.writeToCSV1(m_houghPlane);
+//            Output.writeToCSVPossibility(TreeData.getThisFloor());
+
+//            Output.writeToCSVNecessityNode(TreeData.getThisFloor());
+//            Output.writeToCSVNecessityNodeOnlyHold(TreeData.getThisFloor());
+
+//            Output.writeToCSVNecessity(TreeData.getThisFloor());
+            Output.writeToCSVNecessityOnlyHold(TreeData.getThisFloor());
         } catch (InterruptedException ex) {
             Logger.getLogger(FuzzySymmetry.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         //一定以上のグレードを満たす対称軸すべてを返すメソッドへ
-        return searchPassingPoints(m_houghPlane);
+        return searchPassingPoints();
     }
 
     /**
      * ハフ平面への投票結果により導出されたグレードがPASSING_AVERAGEより大きいものを返す
      *
-     * @param array2d ハフ平面
+//     * @param array2d ハフ平面
      * @return 得票数が一定より多かった直線
      */
-    private static List<SymmetricAxis> searchPassingPoints(double[][] array2d) {
+    private static List<SymmetricAxis> searchPassingPoints() {
 
         List<SymmetricAxis> passedPoints = new ArrayList<>();
 
         //キャンバスの大きさから距離の取りうる最大値(R)を算出
-        double R = 2 * Math.sqrt(Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_X, 2) + Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_Y, 2));
+//        double R = 2 * Math.sqrt(Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_X, 2) + Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_Y, 2));
 
         //許容範囲定数(PASSING_AVERAGE)を超えるグレードを持つ直線を出力する直線としてリストへ追加
-        for (int i = 0; i < NUM_OF_DIVISION_ANGLES; i++) {
-            for (int j = 0; j < NUM_OF_DIVISION_PIXELS; j++) {
-                if (PASSING_AVERAGE < array2d[i][j]) {
-                    //(s, t)の情報を実際の角度・距離へと変換したものを追加
-                    passedPoints.add(SymmetricAxis.create(i * (2 * Math.PI / (double) NUM_OF_DIVISION_ANGLES),
-                            (j - (NUM_OF_DIVISION_PIXELS / 2)) * (R / (double) NUM_OF_DIVISION_PIXELS), 0, 0, 0, null,
-                            SymmetricAxis.setColor(array2d[i][j]), array2d[i][j]));
-                }
+//        for (int i = 0; i < m_NumOfDivisionTheta; i++) {
+//            for (int j = 0; j < m_NumOfDivisionRho; j++) {
+//                if (PASSING_AVERAGE < array2d[i][j]) {
+//                    //(s, t)の情報を実際の角度・距離へと変換したものを追加
+//                    passedPoints.add(SymmetricAxis.create(i * (2 * Math.PI / (double) m_NumOfDivisionTheta),
+//                            (j - (m_NumOfDivisionRho / 2)) * (R / (double) m_NumOfDivisionRho), 0, 0, 0, null,
+//                            SymmetricAxis.setColor(array2d[i][j]), array2d[i][j]));
+//                }
+//            }
+//        }
+        List<TreeData.NodeData> leafs = TreeData.getLeafNodes(0);
+//        for(TreeData.NodeData leaf : leafs){
+//            if(PASSING_AVERAGE < leaf.getPossibility() && !leaf.isHold()){
+//                passedPoints.add(SymmetricAxis.create(leaf.getBeginTheta() + leaf.getRangeTheta()/2,
+//                    leaf.getBeginRho() + leaf.getRangeRho()/2, 0, 0, 0, null,
+//                    SymmetricAxis.setColor(leaf.getPossibility()), leaf.getPossibility(), leaf.getNecessity()));
+//            }
+//        }
+
+//        passedPoints = SymmetricAxis.sort(passedPoints);
+
+        for(TreeData.NodeData leaf : leafs){
+            if(leaf.isHold()){
+                passedPoints.add(SymmetricAxis.create(leaf.getBeginTheta() + leaf.getRangeTheta()/2,
+                        leaf.getBeginRho() + leaf.getRangeRho()/2,leaf.getRangeTheta(),leaf.getRangeRho(),0,null,
+                        Color.hsb(120, 1.0, 1, 1), leaf.getPossibility(), leaf.getNecessity()));
             }
         }
 
+
         //高いグレードを得た対称軸を最前面に表示するために，出力する直線をグレードが昇順となるようにソート
-        List<SymmetricAxis> passedPointsSort = SymmetricAxis.sort(passedPoints);
-        if (passedPointsSort.size() != 0) {
-            double a = passedPointsSort.get(passedPointsSort.size() - 1).getAngle();
-            double b = passedPointsSort.get(passedPointsSort.size() - 1).getDistance();
-            passedPointsSort.set(passedPointsSort.size() - 1, SymmetricAxis.create(a, b, 0, 0l, 0, null, Color.BLUE, passedPointsSort.get(passedPointsSort.size() - 1).getGrade()));
-        }
-        return passedPointsSort;
+//        if (passedPointsSort.size() != 0) {
+//            double angle = passedPointsSort.get(passedPointsSort.size() - 1).getAngle();
+//            double deltaAngle = passedPointsSort.get(passedPointsSort.size() - 1).getDeltaAngle();
+//            double distance = passedPointsSort.get(passedPointsSort.size() - 1).getDistance();
+//            double deltaDistance = passedPointsSort.get(passedPointsSort.size() - 1).getDeltaDistance();
+//            passedPointsSort.set(passedPointsSort.size() - 1, SymmetricAxis.create(angle, distance, deltaAngle, deltaDistance, 0, null, Color.hsb(240,passedPointsSort.get(passedPointsSort.size() - 1).getGrade(),1,1), passedPointsSort.get(passedPointsSort.size() - 1).getGrade(), passedPointsSort.get(passedPointsSort.size() - 1).getNecessity()));
+//        }
+//        double maxGrade = passedPointsSort.get(passedPointsSort.size() - 1).getGrade();
+//        for(int i = passedPointsSort.size() - 1; i >= 0; --i){
+//            if(maxGrade - 0.05 <= passedPointsSort.get(i).getGrade()){
+//                passedPointsSort.set(i, SymmetricAxis.create(passedPointsSort.get(i).getAngle(), passedPointsSort.get(i).getDistance(),
+//                        passedPointsSort.get(i).getDeltaAngle(), passedPointsSort.get(i).getDeltaDistance(), 0, null,
+//                        Color.hsb(240,passedPointsSort.get(i).getGrade(),1,1), passedPointsSort.get(i).getGrade(), passedPointsSort.get(i).getNecessity()));
+//            }
+//        }
+        return passedPoints;
     }
 
     /**
@@ -101,114 +140,72 @@ public class FuzzySymmetry {
      * @param _pair 投票を行う2点のペア
      */
     public static void calculateGrade(Pair _pair) {
-        /*ペア毎の投票結果を保存する配列*/
-        double[][] VotesOfPair = new double[NUM_OF_DIVISION_ANGLES][NUM_OF_DIVISION_PIXELS];
-        /* 角度の刻み幅 */
-        double intervalAngle = (Math.PI * 2) / (double) NUM_OF_DIVISION_ANGLES;
 
-        double gradeTheta, gradeRho;
+        double possibilityTheta;
+        double possibilityRho;
+        double necessityTheta;
+        double necessityRho;
 
-        for (int i = 0; i < NUM_OF_DIVISION_ANGLES; i++) {
+        int index = 0;
+        for(TreeData.NodeData parent : m_parentHough){
+            for(TreeData.NodeData child : TreeData.getChildren(parent)){
+                double beginTheta = child.getBeginTheta() * FuzzySymmetry.MAX_THETA;
+                double endTheta = child.getEndTheta() * FuzzySymmetry.MAX_THETA;
+                double beginRho = child.getBeginRho() * FuzzySymmetry.R;
+                double endRho = child.getEndRho() * FuzzySymmetry.R;
 
-            //角度側のグレードとしてθとθ＋πのグレードを導出し高い方をグレードとして採用
-            //修論中の(2.3)式の操作を表している
-            //ファジィ角度の導出の順序が論文における式と微妙に違うため注意
-            gradeTheta = Math.max(_pair.calculateGrade(getBeginTheta(i), getEndTheta(i),true),
-                    _pair.calculateGrade(getBeginTheta(i), getEndTheta(i), false));
+                possibilityTheta = Math.max(_pair.calculatePossibilityTheta(beginTheta, endTheta,true),
+                                        _pair.calculatePossibilityTheta(beginTheta, endTheta, false));
+                possibilityRho = _pair.calculatePossibilityRho(beginRho, endRho,
+                                                    beginTheta, endTheta);
+                necessityTheta = Math.max(_pair.calculateNecessityTheta(beginTheta, endTheta,true),
+                                            _pair.calculateNecessityTheta(beginTheta, endTheta, false));
+                necessityRho = _pair.calculateNecessityRho(beginRho, endRho,
+                                                            beginTheta, endTheta);
 
-            /* θに対応するρの値を算出 */
-            double D1 = _pair.calculateCenterPoint().getX() * Math.cos(getBeginTheta(i))
-                    + _pair.calculateCenterPoint().getY() * Math.sin(getBeginTheta(i));
-            double D2 = _pair.calculateCenterPoint().getX() * Math.cos(getEndTheta(i))
-                    + _pair.calculateCenterPoint().getY() * Math.sin(getEndTheta(i));
+                addGradeToPairList(index, Math.min(possibilityTheta, possibilityRho), Math.min(necessityTheta, necessityRho), child.getBeginTheta() + child.getRangeTheta()/2, child.getBeginRho() + child.getRangeRho()/2);
+                m_childIndex[index] = child.getThisIndex();
 
-            //距離側のグレード導出
-            for (int j = 0; j < NUM_OF_DIVISION_PIXELS; j++) {
-
-                double v1 = getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2);
-                double v2 = getEndRho(j - NUM_OF_DIVISION_PIXELS / 2);
-
-
-
-
-                    //直線近似
-                    gradeRho = _pair.calculateGradeRho(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), getBeginTheta(i), getEndTheta(i));
-
-                    //直線近似なし
-//                    gradeRho = _pair.calculateGradeRho2(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), i * intervalAngle);
-
-                    //ビンの中心を使った直線近似
-//                    gradeRho = _pair.calculateGradeRho3(getBeginRho(j - NUM_OF_DIVISION_PIXELS / 2), getEndRho(j - NUM_OF_DIVISION_PIXELS / 2), (j - NUM_OF_DIVISION_PIXELS / 2) * R / NUM_OF_DIVISION_PIXELS, getBeginTheta(i), getEndTheta(i), i * intervalAngle);
-
-                    //θとρのグレードを比較しそのAND(Minimum)を取り、ハフ投票
-                    addGradeToPairList(i, j, Math.min(gradeTheta, gradeRho));
-
-                    /*ペア毎の投票結果を保存*/
-                    VotesOfPair[i][j] = Math.min(gradeTheta, gradeRho);
-//                }
-
+                ++index;
             }
         }
-        /*ペア毎の投票結果をCSVファイルとして出力*/
-        try {
-            Output.writeToCSV2(VotesOfPair,_pair.getM_p1(),_pair.getM_p2());
-        } catch (InterruptedException ex) {
-            Logger.getLogger(FuzzySymmetry.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
+//        /*ペア毎の投票結果をCSVファイルとして出力*/
+//        try {
+//            Output.writeToCSV2(VotesOfPair,_pair.getM_p1(),_pair.getM_p2(), m_houghPlane.size() - 1);
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(FuzzySymmetry.class.getName()).log(Level.SEVERE, null, ex);
+//        }
 
     }
 
-    public static double getBeginTheta(int _num){
-        double span = 2 * Math.PI / NUM_OF_DIVISION_ANGLES;
-        return _num * span - span / 2;
-    }
-
-    public static double getEndTheta(int _num){
-        double span = 2 * Math.PI / NUM_OF_DIVISION_ANGLES;
-        return _num * span + span / 2;
-    }
-
-    public static double getBeginRho(int _num){
-        double span = R / NUM_OF_DIVISION_PIXELS;
-        return _num * span - span / 2;
-    }
-
-    public static double getEndRho(int _num){
-        double span = R / NUM_OF_DIVISION_PIXELS;
-        return _num * span + span / 2;
-    }
-
-    /**
-     * ハフ空間の初期化を行う
-     */
-    public static void initializeHoughPlane() {
-        for (int i = 0; i < NUM_OF_DIVISION_ANGLES; i++) {
-            for (int j = 0; j < NUM_OF_DIVISION_PIXELS; j++) {
-                m_houghPlane[i][j] = 0;
-            }
-        }
-    }
 
     /**
      * 条件を満たす(PASSING_AVERAGEを超える)グレードの情報を
      * ハフ空間への投票候補となるペアリストへと追加する．
      *
-     * @param _i 参照している座標のx座標
-     * @param _j 参照している座標のy座標
+     * @param _cnt 参照しているビンのインデックス
      * @param _grade グレード
      */
-    private static void addGradeToPairList(int _i, int _j, double _grade) {
-        if (PASSING_AVERAGE < _grade) {
-            if (m_matchingMode == 0) {
-                if (m_pivotI == m_pivotJ) {
-                    m_houghPlaneCalculate[_i][_j].add(Vote.create(_grade, m_pivotI, m_pivotI + SimpleSymmetryForPoints.m_numOfPoints));
-                } else {
-                    m_houghPlaneCalculate[_i][_j].add(Vote.create(_grade, m_pivotI, m_pivotJ));
-                }
-            } else if (m_matchingMode == 1 || m_matchingMode == 2) {
-                m_houghPlaneCalculate[_i][_j].add(Vote.create(_grade, m_pivotI, m_pivotJ));
-            }
+    private static void addGradeToPairList(int _cnt, double _grade, double _necessity, double _pivotTheta, double _pivotRho) {
 
+        if (m_matchingMode == 0) {
+            if (m_pivotI == m_pivotJ) {
+                m_houghPlanePossibility[_cnt].add(Vote.create(_grade, m_pivotI, m_pivotI + SimpleSymmetryForPoints.m_numOfPoints, _pivotTheta, _pivotRho));
+            } else {
+                m_houghPlanePossibility[_cnt].add(Vote.create(_grade, m_pivotI, m_pivotJ, _pivotTheta, _pivotRho));
+            }
+        } else if (m_matchingMode == 1 || m_matchingMode == 2) {
+            m_houghPlanePossibility[_cnt].add(Vote.create(_grade, m_pivotI, m_pivotJ, _pivotTheta, _pivotRho));
+        }
+        if (m_matchingMode == 0) {
+            if (m_pivotI == m_pivotJ) {
+                m_houghPlaneNecessity[_cnt].add(Vote.create(_necessity, m_pivotI, m_pivotI + SimpleSymmetryForPoints.m_numOfPoints, _pivotTheta, _pivotRho));
+            } else {
+                m_houghPlaneNecessity[_cnt].add(Vote.create(_necessity, m_pivotI, m_pivotJ, _pivotTheta, _pivotRho));
+            }
+        } else if (m_matchingMode == 1 || m_matchingMode == 2) {
+            m_houghPlaneNecessity[_cnt].add(Vote.create(_necessity, m_pivotI, m_pivotJ, _pivotTheta, _pivotRho));
         }
     }
 
@@ -220,47 +217,82 @@ public class FuzzySymmetry {
      */
     private static void voteHoughSpace() {
         double start = System.currentTimeMillis();
-        for (int i = 0; i < NUM_OF_DIVISION_ANGLES; i++) {
-            for (int j = 0; j < NUM_OF_DIVISION_PIXELS; j++) {
-
-                //点群のうち半分以上のペアが許容範囲定数(PASSING_RATE(以上の投票をしていないとマッチング操作へ移らない
-                if (m_houghPlaneCalculate[i][j].size() >= SimpleSymmetryForPoints.m_numOfPoints / 2) {
-                    List<Vote> voteSorts;
-                    //各対称軸に対する支持率に基づくペアの順序付け操作
-                    //としてペアリストのソーティングを行う
-                    voteSorts = Vote.sort(m_houghPlaneCalculate[i][j]);
-
-                    //どのマッチングを使うかをスイッチ
-                    if (m_matchingMode == 0) {
-                        m_houghPlane[i][j] = Vote.decideGrade(voteSorts).getGrade();
-                    } else if (m_matchingMode == 1) {
-                        m_houghPlane[i][j] = Vote.decideGradeUsingBipartiteGraph(voteSorts).getGrade();
-                    } else if (m_matchingMode == 2) {
-                        m_houghPlane[i][j] = Vote.decideGradeUsingKuhn(voteSorts).getGrade();
-                    }
-
+        for (int i = 0; i < m_houghPlanePossibility.length; ++i) {
+            //点群のうち半分以上のペアが許容範囲定数(PASSING_RATE(以上の投票をしていないとマッチング操作へ移らない
+            if (m_houghPlanePossibility[i].size() >= SimpleSymmetryForPoints.m_numOfPoints/ 2) {
+                //各対称軸に対する支持率に基づくペアの順序付け操作
+                //としてペアリストのソーティングを行う
+                List<Vote> gradeSorts = Vote.sort(m_houghPlanePossibility[i]);
+                List<Vote> necessitySorts = Vote.sort(m_houghPlaneNecessity[i]);
+                Vote grade;
+                Vote necessity;
+                 //どのマッチングを使うかをスイッチ
+                if (m_matchingMode == 0) {
+                    grade = Vote.decideGrade(gradeSorts);
+                    necessity = Vote.decideGrade(necessitySorts);
+                    TreeData.setData(m_childIndex[i], grade.getGrade(), necessity.getGrade());
+                } else if (m_matchingMode == 1) {
+                    grade = Vote.decideGradeUsingBipartiteGraph(gradeSorts);
+                    necessity = Vote.decideGradeUsingBipartiteGraph(necessitySorts);
+                    TreeData.setData(m_childIndex[i], grade.getGrade(), necessity.getGrade());
+                } else if (m_matchingMode == 2) {
+                    grade = Vote.decideGradeUsingKuhn(gradeSorts);
+                    necessity = Vote.decideGradeUsingKuhn(necessitySorts);
+                    TreeData.setData(m_childIndex[i], grade.getGrade(), necessity.getGrade());
                 }
             }
         }
         double stop = System.currentTimeMillis();
         System.out.println("マッチングにかかった時間は " + (stop - start) / 1000 + " 秒です。");
-
     }
 
+    public static Point calculateCentroid(List<? extends Point> _points){
+        double centerX = 0.0;
+        double centerY = 0.0;
+        double centerF = 0.0;
+        for(Point p : _points){
+            centerX += p.getX();
+            centerY += p.getY();
+            centerF += p.getF();
+        }
 
+        return Point.create(centerX/_points.size(), centerY/_points.size(), centerF/_points.size());
+    }
 
     /**
-     * ハフ空間への投票候補となるペアリストを初期化する
+     * ハフ空間の初期化を行う
      */
-    private static void initializeHoughPlaneCalculate() {
-        m_houghPlaneCalculate = new ArrayList[NUM_OF_DIVISION_ANGLES][NUM_OF_DIVISION_PIXELS];
+    public static void initializeHoughPlane() {
+        TreeData.createStartHoughPlane();
+    }
 
-        for (int i = 0; i < NUM_OF_DIVISION_ANGLES; i++) {
-            for (int j = 0; j < NUM_OF_DIVISION_PIXELS; j++) {
-                m_houghPlaneCalculate[i][j] = new ArrayList<>();
-            }
+    private static void initialize(){
+
+//        m_rangeTheta = 2 * Math.PI / (int)Math.pow(TreeData.THETA_SPLIT_NUM, TreeData.getThisFloor());
+//        m_rangeRho = R / (int)Math.pow(TreeData.RHO_SPLIT_NUM, TreeData.getThisFloor());
+
+        m_parentHough = TreeData.getParentHough(0);
+
+        int childNum;
+        if(m_parentHough.get(0).getSplitType() == TreeData.SPLIT_TYPE_THETA){
+            childNum = m_parentHough.size() * TreeData.THETA_SPLIT_NUM;
+        }else if(m_parentHough.get(0).getSplitType() == TreeData.SPLIT_TYPE_RHO){
+            childNum = m_parentHough.size() * TreeData.RHO_SPLIT_NUM;
+        }else{
+            childNum = m_parentHough.size() * TreeData.THETA_SPLIT_NUM * TreeData.RHO_SPLIT_NUM;
+        }
+
+        m_childIndex = new int[childNum];
+
+        m_houghPlanePossibility = new ArrayList[childNum];
+        m_houghPlaneNecessity = new ArrayList[childNum];
+        for (int i = 0; i < m_houghPlanePossibility.length; i++) {
+            m_houghPlanePossibility[i] = new ArrayList<>();
+            m_houghPlaneNecessity[i] = new ArrayList<>();
         }
     }
+
+
 
     /**
      * 現在どの点を参照(投票)しているかを表す
@@ -280,47 +312,35 @@ public class FuzzySymmetry {
      * 距離の最大値
      */
 
-    public static final double R = 2 * Math.sqrt(Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_X, 2) + Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_Y, 2));
+    public static final double R = Math.sqrt(Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_X, 2) + Math.pow(SimpleSymmetryForPoints.CANVAS_SIZE_Y, 2));
 
-    /**
-     * ハフ平面におけるθとρの分割数の分割倍率
-     */
-    public static final int MAGNIFICATION_OF_NUM_OF_DIVISION_PIXELS = 1;
-    public static final int MAGNIFICATION_OF_NUM_OF_DIVISION_ANGLES = 1;
+    public static final double MAX_THETA = Math.PI;
 
-    /**
-     * ハフ平面におけるρの分割数
-     * N_ρ
-     * 論文中では正部分での分割数を指定していたが，本プログラム中では
-     * 正負方向全体の分割数を指定している点に注意
-     */
-
-    public static final int NUM_OF_DIVISION_PIXELS = 1600/MAGNIFICATION_OF_NUM_OF_DIVISION_PIXELS;
-
-    /**
-     * ハフ平面におけるθの分割数
-     * N_θ
-     */
-
-    public static final int NUM_OF_DIVISION_ANGLES = 360/MAGNIFICATION_OF_NUM_OF_DIVISION_ANGLES;
-
-    /**
-     * ハフ平面
-     */
-    public static double[][] m_houghPlane
-            = new double[NUM_OF_DIVISION_ANGLES][NUM_OF_DIVISION_PIXELS];
+//    public static double m_rangeTheta = MAX_THETA;
+//
+//    public static double m_rangeRho = R;
 
     /**
      * ハフ空間への投票候補となるグレードのリスト
      */
-    public static List<Vote>[][] m_houghPlaneCalculate;
+    public static List<Vote>[] m_houghPlanePossibility;
 
-    /**
+    public static List<Vote>[] m_houghPlaneNecessity;
+
+    public static List<TreeData.NodeData> m_parentHough;
+
+    public static Point m_centroid;
+
+    public static int[] m_childIndex;
+
+   /**
      * 扱うマッチング手法を設定する 
      * 0 : Edmonds(一般グラフ・バグ有)
      * 1 : ford-fulkerson(二部グラフ・低速・佐々木が実装)
      * 2 : Kuhn's(二部グラフ・比較的高速・ホームページより持ってきたもの)
      */
     private static final int m_matchingMode = 1;
+
+    public static final boolean useEmphasis = false;
 
 }
